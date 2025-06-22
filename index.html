@@ -182,6 +182,49 @@
             margin-bottom: 1rem;
         }
 
+        /* 新增：技术创新单元样式 */
+        .tech-innovation-unit {
+            margin: 3rem 0;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 15px;
+            padding: 2rem;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.05);
+            border: 1px solid rgba(100, 181, 246, 0.15);
+        }
+
+        .tech-innovation-header {
+            background: linear-gradient(135deg, #81c784 0%, #66bb6a 100%);
+            color: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 15px rgba(102, 187, 106, 0.3);
+        }
+
+        .tech-innovation-header h3 {
+            color: white;
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+        }
+
+        .tech-content-layout {
+            display: flex;
+            gap: 2rem;
+            align-items: flex-start;
+            flex-wrap: wrap;
+        }
+
+        .tech-description {
+            flex: 1;
+            min-width: 350px;
+        }
+
+        .tech-image {
+            flex: 0 0 400px;
+            min-width: 350px;
+            text-align: center;
+        }
+
         .performance-stats {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
@@ -405,12 +448,18 @@
                 grid-template-columns: 1fr;
             }
 
-            .content-with-image {
+            .content-with-image,
+            .tech-content-layout {
                 flex-direction: column;
             }
 
-            .content-image {
+            .content-image,
+            .tech-image {
                 flex: none;
+            }
+
+            .tech-description {
+                min-width: auto;
             }
 
             .stat-number {
@@ -420,6 +469,10 @@
             .full-width-image,
             .side-by-side-images {
                 margin: 2rem -1.5rem;
+            }
+
+            .tech-innovation-unit {
+                padding: 1.5rem;
             }
         }
     </style>
@@ -436,8 +489,8 @@
         <header class="header">
             <h1>Fast On-device LLM Inference with NPUs</h1>
             <div class="author-info">
-                <strong>北京工业大学 张禹喆</strong><br>
-                专业第一 | 四篇CCF论文 | 北大软微论文阅读任务
+                <strong>北大软微论文阅读任务</strong><br>
+                北京工业大学 张禹喆 | 专业第一 | 四篇CCF论文
             </div>
             <div class="paper-title">
                 论文阅读报告：移动端NPU加速大语言模型推理系统研究
@@ -519,32 +572,61 @@
             </div>
 
             <h3>🔧 关键技术创新的深度剖析</h3>
-            <div class="tech-grid">
-                <div class="tech-card">
+
+            <!-- 技术创新点1: Chunk-sharing Graphs -->
+            <div class="tech-innovation-unit">
+                <div class="tech-innovation-header">
                     <h3>🧩 Chunk-sharing Graphs</h3>
-                    <p><strong>核心创新：</strong>将LLM算子分为静态算子和动态算子两类，通过预构建固定长度的子图避免重复的图构建开销。传统的NPU推理需要为每个不同长度的输入重新构建和优化计算图，这个过程往往需要数十秒。</p>
-                    <p><strong>技术成果：</strong>在Qwen1.5-1.8B模型中，144个子图中有120个可以共享，内存消耗降低了75%。</p>
+                    <p><strong>核心创新：</strong>将LLM算子分为静态算子和动态算子两类，通过预构建固定长度的子图避免重复的图构建开销。</p>
                 </div>
-                <div class="tech-card">
-                    <h3>👤 Shadow Outlier Execution</h3>
-                    <p><strong>核心创新：</strong>解决了激活异常值导致的量化精度损失问题，同时避免了传统分组量化方法在NPU上的效率损失。将MatMul操作分解为两部分：在NPU上处理正常范围内的激活，在CPU上处理异常值。</p>
-                    <p><strong>技术优势：</strong>既保证了计算精度，又避免了NPU效率的损失，实现了数学等式分解思想与硬件特性的完美结合。</p>
-                </div>
-                <div class="tech-card">
-                    <h3>⚡ Out-of-order Subgraph Execution</h3>
-                    <p><strong>核心创新：</strong>基于NPU负载优先的调度策略，传统的按序执行会产生大量的执行气泡，作者提出了基于NPU负载优先的调度策略。</p>
-                    <p><strong>性能提升：</strong>从传统37%的气泡率降低到0.7%，显著提升了系统的整体执行效率。</p>
+                <div class="tech-content-layout">
+                    <div class="tech-description">
+                        <p>传统的NPU推理需要为每个不同长度的输入重新构建和优化计算图，这个过程往往需要数十秒。作者巧妙地将LLM的计算图分解为可重用的固定长度子图，通过预构建和缓存这些子图，显著减少了运行时的图构建开销。</p>
+                        <p><strong>技术成果：</strong>在Qwen1.5-1.8B模型中，144个子图中有120个可以共享，内存消耗降低了75%。这种设计不仅提升了性能，还大幅减少了内存占用。</p>
+                        <p><strong>创新意义：</strong>这是首次在移动端NPU上实现大规模计算图重用的系统，为后续相关研究奠定了重要基础。</p>
+                    </div>
+                    <div class="tech-image">
+                        <img src="fig/fig7.png" alt="Chunk-sharing Graph技术的核心设计思想对比" class="report-image">
+                        <p class="image-caption">📊 图3：Chunk-sharing Graph技术的核心设计思想对比</p>
+                    </div>
                 </div>
             </div>
 
-            <div class="content-with-image">
-                <div class="content-text">
-                    <img src="fig/fig7.png" alt="Chunk-sharing Graph技术的核心设计思想对比" class="report-image">
-                    <p class="image-caption">📊 图3：Chunk-sharing Graph技术的核心设计思想对比</p>
+            <!-- 技术创新点2: Shadow Outlier Execution -->
+            <div class="tech-innovation-unit">
+                <div class="tech-innovation-header">
+                    <h3>👤 Shadow Outlier Execution</h3>
+                    <p><strong>核心创新：</strong>解决了激活异常值导致的量化精度损失问题，同时避免了传统分组量化方法在NPU上的效率损失。</p>
                 </div>
-                <div class="content-text centered">
-                    <img src="fig/图4.png" alt="阴影异常值执行的工作流程" id="fig4" class="report-image">
-                    <p class="image-caption">🔧 图4：阴影异常值执行的工作流程，展示了如何在NPU和CPU之间协同处理激活异常值</p>
+                <div class="tech-content-layout">
+                    <div class="tech-description">
+                        <p>将MatMul操作分解为两部分：在NPU上处理正常范围内的激活，在CPU上处理异常值。这种设计既保证了计算精度，又避免了NPU效率的损失，实现了数学等式分解思想与硬件特性的完美结合。</p>
+                        <p><strong>技术优势：</strong>通过动态识别和分离异常值，确保了NPU能够专注于处理规律性较强的数据，而CPU则负责处理复杂的异常情况。这种协同计算模式充分发挥了异构计算的优势。</p>
+                        <p><strong>实现细节：</strong>系统能够在推理过程中动态检测激活异常值，并将相应的计算任务无缝转移到CPU，整个过程对用户透明。</p>
+                    </div>
+                    <div class="tech-image">
+                        <img src="fig/图4.png" alt="阴影异常值执行的工作流程" class="report-image">
+                        <p class="image-caption">🔧 图4：阴影异常值执行的工作流程，展示了如何在NPU和CPU之间协同处理激活异常值</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 技术创新点3: Out-of-order Subgraph Execution -->
+            <div class="tech-innovation-unit">
+                <div class="tech-innovation-header">
+                    <h3>⚡ Out-of-order Subgraph Execution</h3>
+                    <p><strong>核心创新：</strong>基于NPU负载优先的调度策略，传统的按序执行会产生大量的执行气泡。</p>
+                </div>
+                <div class="tech-content-layout">
+                    <div class="tech-description">
+                        <p>作者提出了基于NPU负载优先的调度策略，通过乱序执行来最大化NPU的利用率。系统能够智能分析子图之间的依赖关系，在保证计算正确性的前提下重新排序执行顺序。</p>
+                        <p><strong>性能提升：</strong>从传统37%的气泡率降低到0.7%，显著提升了系统的整体执行效率。这种改进直接转化为用户体验的显著提升。</p>
+                        <p><strong>算法优势：</strong>采用贪心调度算法，在保证实时性的同时获得了近似最优的调度效果。与复杂的全局优化算法相比，该方法在移动端具有更好的实用性。</p>
+                    </div>
+                    <div class="tech-image">
+                        <img src="fig/subgraph.png" alt="乱序子图执行调度策略" class="report-image">
+                        <p class="image-caption">🔄 图5：乱序子图执行调度策略，展示了如何通过智能调度减少执行气泡</p>
+                    </div>
                 </div>
             </div>
 
@@ -565,7 +647,7 @@
             <!-- 图5 - 整页宽度展示 -->
             <div class="full-width-image">
                 <img src="fig/图5.png" alt="自适应块长度选择机制的系统设计" class="report-image">
-                <p class="image-caption">🏗️ 图5：自适应块长度选择机制的系统设计</p>
+                <p class="image-caption">🏗️ 图6：自适应块长度选择机制的系统设计</p>
             </div>
 
             <div class="improvement-grid">
@@ -628,10 +710,10 @@
             <!-- 图14和图15 - 整页宽度上下排列 -->
             <div class="side-by-side-images">
                 <img src="fig/fig14.png" alt="在不同设备和不同提示长度下的性能对比" class="report-image">
-                <p class="image-caption">📈 图6：在不同设备和不同提示长度下，llm.npu相比baseline方法的速度优势</p>
+                <p class="image-caption">📈 图7：在不同设备和不同提示长度下，llm.npu相比baseline方法的速度优势</p>
                 
                 <img src="fig/fig15.png" alt="能耗对比结果" class="report-image">
-                <p class="image-caption">🔋 图7：llm.npu在能耗方面的显著优势（有益于移动设备电池寿命）</p>
+                <p class="image-caption">🔋 图8：llm.npu在能耗方面的显著优势（有益于移动设备电池寿命）</p>
             </div>
 
             <div class="content-with-image">
@@ -641,7 +723,7 @@
                 </div>
                 <div class="content-image">
                     <img src="fig/图7.png" alt="消融实验结果" class="report-image">
-                    <p class="image-caption">🔍 图8：各技术组件的性能贡献消融实验结果</p>
+                    <p class="image-caption">🔍 图9：各技术组件的性能贡献消融实验结果</p>
                 </div>
             </div>
 
@@ -689,7 +771,7 @@
             <!-- 图8 - 置于"进一步实验建议"部分 -->
             <div class="full-width-image">
                 <img src="fig/图8.png" alt="进一步实验建议的系统化框架" class="report-image">
-                <p class="image-caption">💡 图9：进一步实验建议的系统化框架</p>
+                <p class="image-caption">💡 图10：进一步实验建议的系统化框架</p>
             </div>
 
             <div class="content-with-image">
